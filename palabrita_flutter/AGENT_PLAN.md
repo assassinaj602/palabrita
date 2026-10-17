@@ -294,7 +294,11 @@ Write a reply from Assad. Requirements:
 - [x] Phase 3 completed (test_prompts.json & run_benchmark.dart)
 - [x] Benchmark runner verified headlessly
 - [x] PR opened on upstream repo: https://github.com/woliveiras/palabrita/pull/4
-- [x] Paper methods section drafted (docs/paper/methods_section.md)
+- [x] Phase 4.1 completed (Interactive On-Device Benchmark UI in lib/main.dart)
+- [x] Phase 4.2 completed (Google LiteRT-LM Android SDK integrated in MainActivity.kt)
+- [x] Phase 4.3 completed (Deployed Qwen3-0.6B.litertlm and recorded 96 physical hardware turns to CSV and NDJSON)
+- [x] Phase 4.4 completed (Paper methods and results sections drafted in docs/paper/)
+- [x] PR #4 synced on upstream repository with all commits and on-device datasets
 
 ---
 

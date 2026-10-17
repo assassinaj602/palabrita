@@ -299,3 +299,291 @@ timestamp,session_id,turn_number,raw_output,parsed_output,parse_decision,failure
 2026-10-17T13:20:42.691026Z,palabrita_sess_1792243242514_15,148,hints: First mock hint | Second mock hint | Third mock hint,First mock hint | Second mock hint | Third mock hint,success,none,0,157,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
 2026-10-17T13:20:42.696010Z,palabrita_sess_1792243242514_15,149,hints: First mock hint | Second mock hint | Third mock hint,First mock hint | Second mock hint | Third mock hint,success,none,0,189,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
 2026-10-17T13:20:42.700709Z,palabrita_sess_1792243242514_15,150,hints: First mock hint | Second mock hint | Third mock hint,First mock hint | Second mock hint | Third mock hint,success,none,0,154,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:30:16.854309Z,palabrita_sess_1792243761723_1,1,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,55005,1026,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:31:08.294373Z,palabrita_sess_1792243761723_1,2,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51415,287,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:31:59.645744Z,palabrita_sess_1792243761723_1,3,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51344,193,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:32:52.447322Z,palabrita_sess_1792243761723_1,4,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,52794,444,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:33:44.276673Z,palabrita_sess_1792243761723_1,5,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51817,253,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:34:35.776584Z,palabrita_sess_1792244024291_2,6,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51480,197,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:35:26.941313Z,palabrita_sess_1792244024291_2,7,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51156,199,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:36:19.013551Z,palabrita_sess_1792244024291_2,8,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,52063,292,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:37:10.360987Z,palabrita_sess_1792244024291_2,9,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51341,201,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:38:01.760923Z,palabrita_sess_1792244024291_2,10,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51390,450,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:38:53.042917Z,palabrita_sess_1792244281772_3,11,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51263,335,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:39:45.406763Z,palabrita_sess_1792244281772_3,12,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,52354,660,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:40:36.699051Z,palabrita_sess_1792244281772_3,13,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51284,200,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:41:28.013292Z,palabrita_sess_1792244281772_3,14,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51307,633,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:42:19.279429Z,palabrita_sess_1792244281772_3,15,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51259,271,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:43:11.314296Z,palabrita_sess_1792244539289_4,16,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,52018,402,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:44:02.967701Z,palabrita_sess_1792244539289_4,17,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51644,309,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:44:56.544918Z,palabrita_sess_1792244539289_4,18,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,53569,334,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:45:47.887945Z,palabrita_sess_1792244539289_4,19,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51335,334,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:46:39.735039Z,palabrita_sess_1792244539289_4,20,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51839,657,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:47:31.635867Z,palabrita_sess_1792244799746_5,21,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51883,364,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:48:23.222721Z,palabrita_sess_1792244799746_5,22,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51577,197,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:49:14.930775Z,palabrita_sess_1792244799746_5,23,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51699,440,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:50:06.957309Z,palabrita_sess_1792244799746_5,24,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,52018,282,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:50:58.294148Z,palabrita_sess_1792244799746_5,25,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51331,274,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:51:49.605434Z,palabrita_sess_1792245058301_6,26,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51299,197,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:52:41.221448Z,palabrita_sess_1792245058301_6,27,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51610,205,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:53:32.784830Z,palabrita_sess_1792245058301_6,28,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51556,271,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:54:24.069047Z,palabrita_sess_1792245058301_6,29,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51277,261,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:55:15.564022Z,palabrita_sess_1792245058301_6,30,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51488,238,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:56:07.652479Z,palabrita_sess_1792245315577_7,31,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,52068,310,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:56:59.402283Z,palabrita_sess_1792245315577_7,32,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51744,197,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:57:51.840932Z,palabrita_sess_1792245315577_7,33,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,52431,235,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T13:58:43.491174Z,palabrita_sess_1792245315577_7,34,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51643,288,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:00:15.248047Z,palabrita_sess_1792245315577_7,35,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,91716,196,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:03:14.315275Z,palabrita_sess_1792245615328_8,36,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,178814,673,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:06:01.627715Z,palabrita_sess_1792245615328_8,37,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,167288,659,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:08:57.790139Z,palabrita_sess_1792245615328_8,38,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,176156,348,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:11:56.046196Z,palabrita_sess_1792245615328_8,39,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,178239,661,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:15:18.972825Z,palabrita_sess_1792245615328_8,40,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,202893,830,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:18:48.396364Z,palabrita_sess_1792246518993_9,41,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,209387,747,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:22:11.568091Z,palabrita_sess_1792246518993_9,42,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,203143,791,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:25:33.317108Z,palabrita_sess_1792246518993_9,43,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,201740,408,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:28:48.524270Z,palabrita_sess_1792246518993_9,44,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,195186,879,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:31:00.254698Z,palabrita_sess_1792246518993_9,45,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,131699,887,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:31:50.701356Z,palabrita_sess_1792247460270_10,46,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50423,785,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:32:44.711005Z,palabrita_sess_1792247460270_10,47,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,54001,589,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:33:36.770116Z,palabrita_sess_1792247460270_10,48,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,52048,550,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:34:27.352837Z,palabrita_sess_1792247460270_10,49,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50573,558,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:35:19.150615Z,palabrita_sess_1792247460270_10,50,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51791,522,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:36:09.998725Z,palabrita_sess_1792247719160_11,51,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50833,508,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:37:00.485598Z,palabrita_sess_1792247719160_11,52,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50481,66,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:37:51.057600Z,palabrita_sess_1792247719160_11,53,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50564,189,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:38:41.348735Z,palabrita_sess_1792247719160_11,54,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50283,275,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:39:31.570771Z,palabrita_sess_1792247719160_11,55,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50214,195,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:40:22.033892Z,palabrita_sess_1792247971580_12,56,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50447,781,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:43:29.697023Z,palabrita_sess_1792247971580_12,57,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,187653,107,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:46:50.214398Z,palabrita_sess_1792247971580_12,58,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,200491,1610,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:49:39.078983Z,palabrita_sess_1792247971580_12,59,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,168857,386,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:52:43.644051Z,palabrita_sess_1792247971580_12,60,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,184555,585,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:56:12.212130Z,palabrita_sess_1792248763656_13,61,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,208550,490,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:58:31.211159Z,palabrita_sess_1792248763656_13,62,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,138983,594,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T14:59:21.433852Z,palabrita_sess_1792248763656_13,63,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50206,757,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:00:12.204436Z,palabrita_sess_1792248763656_13,64,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50761,1084,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:01:02.579995Z,palabrita_sess_1792248763656_13,65,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50363,582,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:01:53.493841Z,palabrita_sess_1792249262587_14,66,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50901,260,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:02:44.009795Z,palabrita_sess_1792249262587_14,67,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50508,875,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:03:34.867038Z,palabrita_sess_1792249262587_14,68,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50849,777,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:04:25.457086Z,palabrita_sess_1792249262587_14,69,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50584,280,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:05:16.261473Z,palabrita_sess_1792249262587_14,70,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50798,200,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:06:06.889748Z,palabrita_sess_1792249516272_15,71,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50611,310,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:06:57.143492Z,palabrita_sess_1792249516272_15,72,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50246,272,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:07:47.458407Z,palabrita_sess_1792249516272_15,73,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50306,304,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:08:38.249415Z,palabrita_sess_1792249516272_15,74,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50784,269,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:09:28.783542Z,palabrita_sess_1792249516272_15,75,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50526,195,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:10:19.247573Z,palabrita_sess_1792249768796_16,76,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50445,332,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:11:09.860835Z,palabrita_sess_1792249768796_16,77,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50603,270,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:12:01.374450Z,palabrita_sess_1792249768796_16,78,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51506,205,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:12:52.044210Z,palabrita_sess_1792249768796_16,79,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50662,307,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:13:43.614508Z,palabrita_sess_1792249768796_16,80,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,51561,220,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:14:34.871157Z,palabrita_sess_1792250023623_17,81,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51242,343,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:15:26.098303Z,palabrita_sess_1792250023623_17,82,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51221,313,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:16:16.828325Z,palabrita_sess_1792250023623_17,83,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50721,223,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:17:07.630055Z,palabrita_sess_1792250023623_17,84,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50795,192,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:17:58.114029Z,palabrita_sess_1792250023623_17,85,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50476,786,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:18:49.352216Z,palabrita_sess_1792250278123_18,86,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51224,199,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:19:41.234540Z,palabrita_sess_1792250278123_18,87,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51874,171,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:20:31.843241Z,palabrita_sess_1792250278123_18,88,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50603,169,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:21:22.784312Z,palabrita_sess_1792250278123_18,89,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50928,461,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:22:13.291414Z,palabrita_sess_1792250278123_18,90,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50480,187,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:23:03.763477Z,palabrita_sess_1792250533305_19,91,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50452,628,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:23:54.866361Z,palabrita_sess_1792250533305_19,92,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,51093,378,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:24:45.752353Z,palabrita_sess_1792250533305_19,93,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50879,268,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:25:36.632755Z,palabrita_sess_1792250533305_19,94,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,50874,136,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:26:29.115918Z,palabrita_sess_1792250533305_19,95,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F4,52477,68,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)
+2026-10-17T15:27:19.689508Z,palabrita_sess_1792250789126_20,96,"
+
+Hello! I'm here to help. What can I do for you? 😊",,failure,F1,50557,306,android CH7n-H812DE-S-OP-230815V1094 (Dart 3.13.4)

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:palabrita_flutter/palabrita_flutter.dart';
 
 void main() {
@@ -37,7 +38,7 @@ class BenchmarkDashboardScreen extends StatefulWidget {
 
 class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
   final TextEditingController _modelPathController = TextEditingController(
-    text: '/data/local/tmp/qwen3_0_6b.bin',
+    text: '/data/local/tmp/Qwen3-0.6B.litertlm',
   );
 
   int _runsPerPrompt = 5;
@@ -65,6 +66,29 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
   void initState() {
     super.initState();
     _logger = InferenceLogger();
+    _detectModelPath();
+  }
+
+  Future<void> _detectModelPath() async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final internalModel = File('${appDir.path}/models/Qwen3-0.6B.litertlm');
+      if (await internalModel.exists()) {
+        setState(() {
+          _modelPathController.text = internalModel.path;
+        });
+        _logToConsole('Auto-detected model at: ${internalModel.path}');
+        return;
+      }
+    } catch (_) {}
+
+    final tmpFile = File('/data/local/tmp/Qwen3-0.6B.litertlm');
+    if (await tmpFile.exists()) {
+      setState(() {
+        _modelPathController.text = tmpFile.path;
+      });
+      _logToConsole('Auto-detected model at: ${tmpFile.path}');
+    }
   }
 
   @override

@@ -1,0 +1,212 @@
+[
+  {
+    "id": "p001",
+    "word": "gatos",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p002",
+    "word": "campo",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p003",
+    "word": "livro",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p004",
+    "word": "praia",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p005",
+    "word": "apple",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p006",
+    "word": "cloud",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p007",
+    "word": "house",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p008",
+    "word": "perro",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p009",
+    "word": "playa",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p010",
+    "word": "amigo",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "standard_vocab"
+  },
+  {
+    "id": "p011",
+    "word": "sol",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "edge_case_short"
+  },
+  {
+    "id": "p012",
+    "word": "rio",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "edge_case_short"
+  },
+  {
+    "id": "p013",
+    "word": "cat",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "edge_case_short"
+  },
+  {
+    "id": "p014",
+    "word": "lua",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "edge_case_short"
+  },
+  {
+    "id": "p015",
+    "word": "pie",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "edge_case_short"
+  },
+  {
+    "id": "p016",
+    "word": "pasta",
+    "language": "it",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "ambiguous_language"
+  },
+  {
+    "id": "p017",
+    "word": "real",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "ambiguous_language"
+  },
+  {
+    "id": "p018",
+    "word": "tempo",
+    "language": "it",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "ambiguous_language"
+  },
+  {
+    "id": "p019",
+    "word": "pie",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "ambiguous_language"
+  },
+  {
+    "id": "p020",
+    "word": "arena",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "ambiguous_language"
+  },
+  {
+    "id": "p021",
+    "word": "café",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p022",
+    "word": "maçã",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p023",
+    "word": "árbol",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p024",
+    "word": "niño",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p025",
+    "word": "guarda-chuva",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p026",
+    "word": "ice cream",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p027",
+    "word": "liberdade",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p028",
+    "word": "saudade",
+    "language": "pt",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p029",
+    "word": "paradox",
+    "language": "en",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  },
+  {
+    "id": "p030",
+    "word": "esperanza",
+    "language": "es",
+    "expected_format": "hints: hint 1 | hint 2 | hint 3",
+    "category": "format_stress_f1_f2"
+  }
+]

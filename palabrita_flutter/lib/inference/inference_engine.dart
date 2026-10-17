@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'dart:ffi' as ffi;
+import 'package:flutter/services.dart' show MethodChannel, PlatformException;
 import 'package:ffi/ffi.dart';
 import 'litert_lm_bindings.dart';
 
@@ -24,6 +25,9 @@ typedef OnInferenceComplete = void Function(String response, int latencyMs);
 /// Handles initialization, single-shot generation, wall-clock timing,
 /// GC pressure probe recording, and safe native resource deallocation.
 class InferenceEngine implements ffi.Finalizable {
+  static const MethodChannel _platformChannel = MethodChannel('com.palabrita.research/litertlm');
+  bool _usePlatformChannel = false;
+
   final LiteRtLmBindings bindings;
   ffi.Pointer<OpaqueEngine>? _enginePtr;
   bool _isDisposed = false;
@@ -44,6 +48,22 @@ class InferenceEngine implements ffi.Finalizable {
     bool useGpu = false,
   }) async {
     if (_isDisposed) throw StateError('Engine already disposed');
+
+    if (bindings.isMock) {
+      try {
+        final ok = await _platformChannel.invokeMethod<bool>('initialize', {
+          'modelPath': modelPath,
+          'useGpu': useGpu,
+        });
+        if (ok == true) {
+          _usePlatformChannel = true;
+          _enginePtr = ffi.Pointer.fromAddress(0x12345678);
+          return;
+        }
+      } catch (_) {
+        // Fallback for headless tests where platform channel is not active
+      }
+    }
 
     final pathPtr = modelPath.toNativeUtf8();
     final outEngine = calloc<ffi.Pointer<OpaqueEngine>>();
@@ -98,6 +118,30 @@ class InferenceEngine implements ffi.Finalizable {
 
     // 2. Wall-clock timing wrapper
     final stopwatch = Stopwatch()..start();
+
+    if (_usePlatformChannel) {
+      try {
+        final response = await _platformChannel.invokeMethod<String>('sendMessage', {
+          if (systemPrompt != null) 'systemPrompt': systemPrompt,
+          'userPrompt': userPrompt,
+          'topK': topK,
+          'topP': topP,
+          'temperature': temperature,
+        }) ?? '';
+
+        stopwatch.stop();
+        final latencyMs = stopwatch.elapsedMilliseconds;
+        onComplete?.call(response, latencyMs);
+
+        return InferenceResult(
+          text: response,
+          latencyMs: latencyMs,
+          gcPauseEstimateUs: gcPauseUs,
+        );
+      } on PlatformException catch (e) {
+        throw LiteRtLmException(LiteRtLmStatus.errorInferenceFailed, e.message ?? 'Inference execution failed');
+      }
+    }
 
     // Native pointers
     final sysPromptPtr = systemPrompt != null ? systemPrompt.toNativeUtf8() : ffi.nullptr.cast<Utf8>();
@@ -158,10 +202,16 @@ class InferenceEngine implements ffi.Finalizable {
   void dispose() {
     if (_isDisposed) return;
     _isDisposed = true;
+    if (_usePlatformChannel) {
+      _platformChannel.invokeMethod('dispose').catchError((_) => null);
+      _usePlatformChannel = false;
+    }
     final eng = _enginePtr;
     if (eng != null) {
-      bindings.engineFinalizer.detach(this);
-      bindings.engineDestroy(eng);
+      if (!bindings.isMock) {
+        bindings.engineFinalizer.detach(this);
+        bindings.engineDestroy(eng);
+      }
       _enginePtr = null;
     }
   }

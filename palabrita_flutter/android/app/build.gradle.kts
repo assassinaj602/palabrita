@@ -47,3 +47,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+}

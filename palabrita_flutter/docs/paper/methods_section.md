@@ -31,3 +31,4 @@ Model completions were classified into four mutually exclusive outcomes accordin
 * **Format Violation (F1)**: Complete absence of formatting scaffolding (e.g., conversational preambles, missing keys, or unstructured prose).
 * **Structural Error (F2)**: Partial structural conformance that violated semantic constraints (e.g., fewer than three valid hints, leakage of the target lemma within a clue, or corrupted delimiters).
 * **Session Degradation (F4)**: Multi-turn degradation characterized by consecutive parsing failures, repetitive loop collapse, or context degeneration deep within a session.
+

@@ -291,10 +291,10 @@ Write a reply from Assad. Requirements:
 - [x] Verified Palabrita uses single-shot generation (doGenerate via sendMessage)
 - [x] Phase 1 completed (Scaffold & InferenceLogger)
 - [x] Phase 2 completed (Defensive Parser, Prompt Engine, LiteRT-LM FFI Bindings, Session Lifecycle Manager)
-- [ ] Phase 3 not started
-- [ ] Benchmark not run
-- [ ] PR not opened
-- [ ] Paper not drafted
+- [x] Phase 3 completed (test_prompts.json & run_benchmark.dart)
+- [x] Benchmark runner verified headlessly
+- [x] PR opened on upstream repo: https://github.com/woliveiras/palabrita/pull/4
+- [x] Paper methods section drafted (docs/paper/methods_section.md)
 
 ---
 

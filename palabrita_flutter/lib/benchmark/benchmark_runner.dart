@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:palabrita_flutter/benchmark/inference_logger.dart';
 import 'package:palabrita_flutter/inference/inference_engine.dart';
 import 'package:palabrita_flutter/parser/defensive_parser.dart';
@@ -97,11 +98,13 @@ class BenchmarkRunner {
 
   /// Loads prompts from [promptsPath] (defaults to `assets/test_prompts.json`).
   static Future<List<TestPromptItem>> loadPrompts({String promptsPath = 'assets/test_prompts.json'}) async {
+    String content;
     final file = File(promptsPath);
-    if (!await file.exists()) {
-      throw FileSystemException('Prompts file not found at $promptsPath');
+    if (await file.exists()) {
+      content = await file.readAsString();
+    } else {
+      content = await rootBundle.loadString(promptsPath);
     }
-    final content = await file.readAsString();
     final list = jsonDecode(content) as List<dynamic>;
     return list.map((e) => TestPromptItem.fromJson(e as Map<String, dynamic>)).toList();
   }
@@ -235,3 +238,4 @@ class BenchmarkRunner {
     return summary;
   }
 }
+

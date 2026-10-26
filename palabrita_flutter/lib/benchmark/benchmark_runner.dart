@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:palabrita_flutter/benchmark/failure_classifier.dart';
 import 'package:palabrita_flutter/benchmark/inference_logger.dart';
 import 'package:palabrita_flutter/inference/inference_engine.dart';
 import 'package:palabrita_flutter/parser/defensive_parser.dart';
@@ -41,9 +42,9 @@ class BenchmarkSummary {
   final int successCount;
   final int f1Count;
   final int f2Count;
+  final int f3Count;
   final int f4Count;
   final double meanLatencyMs;
-  final double meanGcPauseUs;
   final String csvPath;
 
   const BenchmarkSummary({
@@ -51,9 +52,9 @@ class BenchmarkSummary {
     required this.successCount,
     required this.f1Count,
     required this.f2Count,
+    required this.f3Count,
     required this.f4Count,
     required this.meanLatencyMs,
-    required this.meanGcPauseUs,
     required this.csvPath,
   });
 
@@ -61,19 +62,20 @@ class BenchmarkSummary {
     final successRate = totalRuns > 0 ? (successCount / totalRuns * 100).toStringAsFixed(1) : '0.0';
     final f1Rate = totalRuns > 0 ? (f1Count / totalRuns * 100).toStringAsFixed(1) : '0.0';
     final f2Rate = totalRuns > 0 ? (f2Count / totalRuns * 100).toStringAsFixed(1) : '0.0';
+    final f3Rate = totalRuns > 0 ? (f3Count / totalRuns * 100).toStringAsFixed(1) : '0.0';
     final f4Rate = totalRuns > 0 ? (f4Count / totalRuns * 100).toStringAsFixed(1) : '0.0';
 
     stdout.writeln('\n===============================================================');
     stdout.writeln('          PALABRITA FLUTTER BENCHMARK SUMMARY RESULTS           ');
     stdout.writeln('===============================================================');
-    stdout.writeln(' Total Runs               : $totalRuns');
-    stdout.writeln(' Successes                : $successCount ($successRate%)');
-    stdout.writeln(' F1 (Format Violations)   : $f1Count ($f1Rate%)');
-    stdout.writeln(' F2 (Structural Errors)   : $f2Count ($f2Rate%)');
-    stdout.writeln(' F4 (Session Degradation) : $f4Count ($f4Rate%)');
-    stdout.writeln(' Mean Latency             : ${meanLatencyMs.toStringAsFixed(2)} ms');
-    stdout.writeln(' Mean GC Pause Estimate   : ${meanGcPauseUs.toStringAsFixed(2)} µs');
-    stdout.writeln(' Benchmark CSV Export     : $csvPath');
+    stdout.writeln(' Total Runs                        : $totalRuns');
+    stdout.writeln(' Successes                         : $successCount ($successRate%)');
+    stdout.writeln(' F1 (Format Violations)            : $f1Count ($f1Rate%)');
+    stdout.writeln(' F2 (Structural Errors)            : $f2Count ($f2Rate%)');
+    stdout.writeln(' F3 (Context Quality Degradation)  : $f3Count ($f3Rate%)');
+    stdout.writeln(' F4 (Latency Incompatibility)      : $f4Count ($f4Rate%)');
+    stdout.writeln(' Mean Latency                      : ${meanLatencyMs.toStringAsFixed(2)} ms');
+    stdout.writeln(' Benchmark CSV Export              : $csvPath');
     stdout.writeln('===============================================================\n');
   }
 }
@@ -94,7 +96,11 @@ class BenchmarkRunner {
     SessionManager? sessionManager,
   })  : parser = parser ?? DefensiveParser(),
         promptEngine = promptEngine ?? PromptEngine(),
-        sessionManager = sessionManager ?? SessionManager(logger: logger);
+        sessionManager = sessionManager ??
+            SessionManager(
+              logger: logger,
+              onSessionReset: inferenceEngine.resetSession,
+            );
 
   /// Loads prompts from [promptsPath] (defaults to `assets/test_prompts.json`).
   static Future<List<TestPromptItem>> loadPrompts({String promptsPath = 'assets/test_prompts.json'}) async {
@@ -122,9 +128,9 @@ class BenchmarkRunner {
     int successCount = 0;
     int f1Count = 0;
     int f2Count = 0;
+    int f3Count = 0;
     int f4Count = 0;
     int totalLatencyMs = 0;
-    int totalGcPauseUs = 0;
 
     await sessionManager.startSession(reason: 'Benchmark session started');
 
@@ -146,61 +152,50 @@ class BenchmarkRunner {
 
         final rawOutput = inferenceResult.text;
         final latencyMs = inferenceResult.latencyMs;
-        final gcPauseUs = inferenceResult.gcPauseEstimateUs;
-
         totalLatencyMs += latencyMs;
-        totalGcPauseUs += gcPauseUs;
 
         // 2. Defensive parsing
         final parseResult = parser.parseHints(rawOutput);
 
-        ParseDecision decision;
-        FailureCategory failureCat;
-        String parsedString = '';
+        // 3. Unified evaluation according to "Less Is More" taxonomy
+        final eval = FailureClassifier.evaluate(
+          rawOutput: rawOutput,
+          parseResult: parseResult,
+          targetWord: promptItem.word,
+          latencyMs: latencyMs,
+          consecutiveFailures: sessionManager.consecutiveFailures,
+        );
 
-        if (parseResult is ParseSuccess<List<String>>) {
-          final hints = parseResult.data;
-          parsedString = hints.join(' | ');
-
-          // Validate target word leakage
-          final wordLower = promptItem.word.toLowerCase();
-          final leaksWord = hints.any((h) => h.toLowerCase().contains(wordLower));
-
-          if (leaksWord) {
-            decision = ParseDecision.failure;
-            failureCat = FailureCategory.F2; // Structural failure: leaks target word
-            f2Count++;
-          } else {
-            decision = ParseDecision.success;
-            failureCat = FailureCategory.none;
+        switch (eval.category) {
+          case FailureCategory.none:
             successCount++;
-          }
-        } else {
-          decision = ParseDecision.failure;
-
-          // Categorize failure according to "Less Is More" taxonomy
-          if (sessionManager.consecutiveFailures >= 3 || rawOutput.contains(rawOutput.substring(0, (rawOutput.length / 2).floor()).trim())) {
-            failureCat = FailureCategory.F4; // Session / repetition degradation
-            f4Count++;
-          } else if (rawOutput.contains(':') && rawOutput.contains('|')) {
-            failureCat = FailureCategory.F2; // Structural failure
-            f2Count++;
-          } else {
-            failureCat = FailureCategory.F1; // Format violation
+            break;
+          case FailureCategory.F1:
             f1Count++;
-          }
+            break;
+          case FailureCategory.F2:
+            f2Count++;
+            break;
+          case FailureCategory.F3:
+            f3Count++;
+            break;
+          case FailureCategory.F4:
+            f4Count++;
+            break;
+          case FailureCategory.F5:
+            break;
         }
 
-        // 3. Log to InferenceLogger BEFORE next operation
+        // 4. Log to InferenceLogger BEFORE next operation
         await logger.logInference(
           sessionId: sessionManager.currentSessionId,
           turnNumber: turnCounter,
           rawOutput: rawOutput,
-          parsedOutput: parsedString,
-          parseDecision: decision,
-          failureCategory: failureCat,
+          parsedOutput: eval.parsedText,
+          parseDecision: eval.decision,
+          failureCategory: eval.category,
           latencyMs: latencyMs,
-          gcPauseEstimateUs: gcPauseUs,
+          executionMode: inferenceEngine.executionMode,
           metadata: {
             'prompt_id': promptItem.id,
             'word': promptItem.word,
@@ -210,17 +205,17 @@ class BenchmarkRunner {
           },
         );
 
-        // 4. Update session manager turn
+        // 5. Update session manager turn
         await sessionManager.recordTurn(
-          isSuccess: decision == ParseDecision.success,
-          failureReason: failureCat != FailureCategory.none ? failureCat.name : null,
+          isSuccess: eval.decision == ParseDecision.success,
+          failureReason: eval.category != FailureCategory.none ? eval.category.name : null,
         );
       }
     }
 
     await sessionManager.endSession(reason: 'Benchmark completed');
 
-    // 5. Export to CSV
+    // 6. Export to CSV
     final csvFile = await logger.exportToCSV(customCsvPath: outputCsvPath);
 
     final summary = BenchmarkSummary(
@@ -228,9 +223,9 @@ class BenchmarkRunner {
       successCount: successCount,
       f1Count: f1Count,
       f2Count: f2Count,
+      f3Count: f3Count,
       f4Count: f4Count,
       meanLatencyMs: totalRuns > 0 ? totalLatencyMs / totalRuns : 0.0,
-      meanGcPauseUs: totalRuns > 0 ? totalGcPauseUs / totalRuns : 0.0,
       csvPath: csvFile.path,
     );
 
@@ -238,4 +233,3 @@ class BenchmarkRunner {
     return summary;
   }
 }
-

@@ -1,31 +1,30 @@
-import 'dart:developer' as developer;
 import 'dart:ffi' as ffi;
-import 'package:flutter/services.dart' show MethodChannel, PlatformException;
 import 'package:ffi/ffi.dart';
+import 'package:flutter/services.dart' show MethodChannel, PlatformException;
 import 'litert_lm_bindings.dart';
 
 /// Result from an inference execution.
 class InferenceResult {
   final String text;
   final int latencyMs;
-  final int gcPauseEstimateUs;
 
   const InferenceResult({
     required this.text,
     required this.latencyMs,
-    required this.gcPauseEstimateUs,
   });
 }
 
 /// Callback hook fired on single-shot completion.
 typedef OnInferenceComplete = void Function(String response, int latencyMs);
 
-/// High-level Dart API over LiteRT-LM FFI bindings.
+/// High-level Dart API over LiteRT-LM inference backends.
 ///
-/// Handles initialization, single-shot generation, wall-clock timing,
-/// GC pressure probe recording, and safe native resource deallocation.
+/// Supports hardware execution via Flutter MethodChannel (`MainActivity.kt` bridge
+/// to `com.google.ai.edge.litertlm:litertlm-android`), native C FFI bindings (`liblitert_lm.so`),
+/// and deterministic mock bindings for headless CI testing.
 class InferenceEngine implements ffi.Finalizable {
-  static const MethodChannel _platformChannel = MethodChannel('com.palabrita.research/litertlm');
+  static const MethodChannel _platformChannel =
+      MethodChannel('com.palabrita.research/litertlm');
   bool _usePlatformChannel = false;
 
   final LiteRtLmBindings bindings;
@@ -39,16 +38,20 @@ class InferenceEngine implements ffi.Finalizable {
     this.onComplete,
   }) : bindings = bindings ?? LiteRtLmBindings.open();
 
-  bool get isReady => _enginePtr != null && !_isDisposed;
+  bool get isReady => (_usePlatformChannel || _enginePtr != null) && !_isDisposed;
+
+  /// Returns the active execution mode: 'hardware' or 'mock'.
+  String get executionMode =>
+      _usePlatformChannel || !bindings.isMock ? 'hardware' : 'mock';
 
   /// Initializes the LiteRT-LM engine with model path and backend.
-  /// Backend: 0 = CPU, 1 = GPU.
   Future<void> initialize({
     required String modelPath,
     bool useGpu = false,
   }) async {
     if (_isDisposed) throw StateError('Engine already disposed');
 
+    // Attempt platform channel initialization first on Android
     if (bindings.isMock) {
       try {
         final ok = await _platformChannel.invokeMethod<bool>('initialize', {
@@ -57,13 +60,22 @@ class InferenceEngine implements ffi.Finalizable {
         });
         if (ok == true) {
           _usePlatformChannel = true;
-          _enginePtr = ffi.Pointer.fromAddress(0x12345678);
           return;
         }
-      } catch (_) {
-        // Fallback for headless tests where platform channel is not active
+      } on MissingPluginException {
+        // Headless CLI/desktop unit test where no Flutter embedding exists:
+        // continue with mock bindings.
+      } on PlatformException catch (e) {
+        // Hardware platform channel is available but initialization failed:
+        // Do NOT silently fall back to mock. Fail explicitly.
+        throw LiteRtLmException(
+          LiteRtLmStatus.errorInferenceFailed,
+          'Hardware engine initialization failed on device: ${e.message} (details: ${e.details})',
+        );
       }
     }
+
+    if (_usePlatformChannel) return;
 
     final pathPtr = modelPath.toNativeUtf8();
     final outEngine = calloc<ffi.Pointer<OpaqueEngine>>();
@@ -72,7 +84,10 @@ class InferenceEngine implements ffi.Finalizable {
       final backend = useGpu ? 1 : 0;
       final status = bindings.engineCreate(pathPtr, backend, outEngine);
       if (status != LiteRtLmStatus.ok) {
-        throw LiteRtLmException(status, 'Failed to initialize LiteRT-LM engine (backend: $backend)');
+        throw LiteRtLmException(
+          status,
+          'Failed to initialize LiteRT-LM native engine (backend: $backend)',
+        );
       }
       _enginePtr = outEngine.value;
       if (!bindings.isMock) {
@@ -84,23 +99,42 @@ class InferenceEngine implements ffi.Finalizable {
     }
   }
 
-  /// Forces a minor GC pressure hint and measures the synchronous pause in microseconds
-  /// using Dart's Timeline API.
-  int _probeGcPause() {
-    final stopwatch = Stopwatch()..start();
-    developer.Timeline.timeSync('InferencePreGCProbe', () {
-      // Allocate and release temporary objects to trigger generational GC pressure
-      final probe = List<int?>.filled(10000, 0);
-      probe[0] = null;
-    });
-    stopwatch.stop();
-    return stopwatch.elapsedMicroseconds;
+  /// Starts or reconfigures a persistent native conversation session.
+  Future<void> startSession({
+    String? systemPrompt,
+    int topK = 40,
+    double topP = 0.95,
+    double temperature = 0.8,
+  }) async {
+    if (_usePlatformChannel) {
+      try {
+        await _platformChannel.invokeMethod('startSession', {
+          if (systemPrompt != null) 'systemPrompt': systemPrompt,
+          'topK': topK,
+          'topP': topP,
+          'temperature': temperature,
+        });
+      } on PlatformException catch (e) {
+        throw LiteRtLmException(
+          LiteRtLmStatus.errorInferenceFailed,
+          'Failed to start native session: ${e.message}',
+        );
+      }
+    }
+  }
+
+  /// Resets the active native conversation session and discards KV-cache context.
+  Future<void> resetSession() async {
+    if (_usePlatformChannel) {
+      try {
+        await _platformChannel.invokeMethod('resetSession');
+      } catch (_) {}
+    }
   }
 
   /// Executes single-shot inference.
   ///
-  /// Records wall-clock latency, runs the pre-inference GC probe,
-  /// invokes [onComplete] hook, and safely returns [InferenceResult].
+  /// Records wall-clock latency, invokes [onComplete] hook, and returns [InferenceResult].
   Future<InferenceResult> generateSingleTurn({
     String? systemPrompt,
     required String userPrompt,
@@ -108,15 +142,10 @@ class InferenceEngine implements ffi.Finalizable {
     double topP = 0.95,
     double temperature = 0.8,
   }) async {
-    final eng = _enginePtr;
-    if (eng == null || _isDisposed) {
+    if (!isReady) {
       throw StateError('InferenceEngine is not initialized or has been disposed');
     }
 
-    // 1. GC Pressure probe before inference
-    final gcPauseUs = _probeGcPause();
-
-    // 2. Wall-clock timing wrapper
     final stopwatch = Stopwatch()..start();
 
     if (_usePlatformChannel) {
@@ -136,15 +165,20 @@ class InferenceEngine implements ffi.Finalizable {
         return InferenceResult(
           text: response,
           latencyMs: latencyMs,
-          gcPauseEstimateUs: gcPauseUs,
         );
       } on PlatformException catch (e) {
-        throw LiteRtLmException(LiteRtLmStatus.errorInferenceFailed, e.message ?? 'Inference execution failed');
+        throw LiteRtLmException(
+          LiteRtLmStatus.errorInferenceFailed,
+          e.message ?? 'Inference execution failed',
+        );
       }
     }
 
     // Native pointers
-    final sysPromptPtr = systemPrompt != null ? systemPrompt.toNativeUtf8() : ffi.nullptr.cast<Utf8>();
+    final eng = _enginePtr!;
+    final sysPromptPtr = systemPrompt != null
+        ? systemPrompt.toNativeUtf8()
+        : ffi.nullptr.cast<Utf8>();
     final promptPtr = userPrompt.toNativeUtf8();
     final samplerPtr = calloc<NativeSamplerConfig>();
     samplerPtr.ref.topK = topK;
@@ -157,14 +191,13 @@ class InferenceEngine implements ffi.Finalizable {
     ffi.Pointer<OpaqueConversation>? convPtr;
 
     try {
-      // Create conversation
-      final convStatus = bindings.conversationCreate(eng, sysPromptPtr, samplerPtr, outConv);
+      final convStatus =
+          bindings.conversationCreate(eng, sysPromptPtr, samplerPtr, outConv);
       if (convStatus != LiteRtLmStatus.ok) {
         throw LiteRtLmException(convStatus, 'Failed to create conversation');
       }
       convPtr = outConv.value;
 
-      // Send single-turn message
       final sendStatus = bindings.sendMessage(convPtr, promptPtr, outResponse);
       if (sendStatus != LiteRtLmStatus.ok) {
         throw LiteRtLmException(sendStatus, 'Inference execution failed');
@@ -176,13 +209,11 @@ class InferenceEngine implements ffi.Finalizable {
       stopwatch.stop();
       final latencyMs = stopwatch.elapsedMilliseconds;
 
-      // 3. Callback hook
       onComplete?.call(responseText, latencyMs);
 
       return InferenceResult(
         text: responseText,
         latencyMs: latencyMs,
-        gcPauseEstimateUs: gcPauseUs,
       );
     } finally {
       if (convPtr != null) {
@@ -216,4 +247,3 @@ class InferenceEngine implements ffi.Finalizable {
     }
   }
 }
-

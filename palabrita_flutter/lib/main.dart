@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:palabrita_flutter/palabrita_flutter.dart';
+import 'package:palabrita_flutter/benchmark/failure_classifier.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,9 +53,10 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
   int _successCount = 0;
   int _f1Count = 0;
   int _f2Count = 0;
+  int _f3Count = 0;
   int _f4Count = 0;
   double _lastLatencyMs = 0;
-  int _lastGcPauseUs = 0;
+  String _executionMode = 'idle';
 
   String? _exportedCsvPath;
   final List<String> _consoleLogs = [];
@@ -116,9 +118,9 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
       _successCount = 0;
       _f1Count = 0;
       _f2Count = 0;
+      _f3Count = 0;
       _f4Count = 0;
       _lastLatencyMs = 0;
-      _lastGcPauseUs = 0;
       _exportedCsvPath = null;
       _consoleLogs.clear();
     });
@@ -145,11 +147,15 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
         useGpu: _useGpu,
       );
 
-      _logToConsole('InferenceEngine ready (backend: ${_useGpu ? 'GPU' : 'CPU'}, mock: ${bindings.isMock}).');
+      _executionMode = _engine!.executionMode;
+      _logToConsole('InferenceEngine ready (backend: ${_useGpu ? 'GPU' : 'CPU'}, mode: $_executionMode).');
 
       final parser = DefensiveParser();
       final promptEngine = PromptEngine();
-      final sessionManager = SessionManager(logger: _logger!);
+      final sessionManager = SessionManager(
+        logger: _logger!,
+        onSessionReset: () async => _engine?.resetSession(),
+      );
 
       await sessionManager.startSession(reason: 'Device benchmark run initiated');
 
@@ -179,54 +185,46 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
 
           final parseResult = parser.parseHints(result.text);
 
-          ParseDecision decision;
-          FailureCategory failureCat;
-          String parsedText = '';
+          final eval = FailureClassifier.evaluate(
+            rawOutput: result.text,
+            parseResult: parseResult,
+            targetWord: promptItem.word,
+            latencyMs: result.latencyMs,
+            consecutiveFailures: sessionManager.consecutiveFailures,
+          );
 
-          if (parseResult is ParseSuccess<List<String>>) {
-            final hints = parseResult.data;
-            parsedText = hints.join(' | ');
-
-            final leaksWord = hints.any(
-              (h) => h.toLowerCase().contains(promptItem.word.toLowerCase()),
-            );
-
-            if (leaksWord) {
-              decision = ParseDecision.failure;
-              failureCat = FailureCategory.F2;
-              _f2Count++;
-            } else {
-              decision = ParseDecision.success;
-              failureCat = FailureCategory.none;
+          switch (eval.category) {
+            case FailureCategory.none:
               _successCount++;
-            }
-          } else {
-            decision = ParseDecision.failure;
-            if (sessionManager.consecutiveFailures >= 3) {
-              failureCat = FailureCategory.F4;
-              _f4Count++;
-            } else if (result.text.contains(':') && result.text.contains('|')) {
-              failureCat = FailureCategory.F2;
-              _f2Count++;
-            } else {
-              failureCat = FailureCategory.F1;
+              break;
+            case FailureCategory.F1:
               _f1Count++;
-            }
+              break;
+            case FailureCategory.F2:
+              _f2Count++;
+              break;
+            case FailureCategory.F3:
+              _f3Count++;
+              break;
+            case FailureCategory.F4:
+              _f4Count++;
+              break;
+            case FailureCategory.F5:
+              break;
           }
 
           _lastLatencyMs = result.latencyMs.toDouble();
-          _lastGcPauseUs = result.gcPauseEstimateUs;
 
           // Telemetry
           await _logger!.logInference(
             sessionId: sessionManager.currentSessionId,
             turnNumber: turnCounter,
             rawOutput: result.text,
-            parsedOutput: parsedText,
-            parseDecision: decision,
-            failureCategory: failureCat,
+            parsedOutput: eval.parsedText,
+            parseDecision: eval.decision,
+            failureCategory: eval.category,
             latencyMs: result.latencyMs,
-            gcPauseEstimateUs: result.gcPauseEstimateUs,
+            executionMode: _engine!.executionMode,
             metadata: {
               'prompt_id': promptItem.id,
               'word': promptItem.word,
@@ -236,14 +234,14 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
           );
 
           await sessionManager.recordTurn(
-            isSuccess: decision == ParseDecision.success,
-            failureReason: failureCat != FailureCategory.none ? failureCat.name : null,
+            isSuccess: eval.decision == ParseDecision.success,
+            failureReason: eval.category != FailureCategory.none ? eval.category.name : null,
           );
 
           setState(() {});
 
-          if (decision != ParseDecision.success) {
-            _logToConsole('⚠️ [${promptItem.id}] Failure (${failureCat.name}): ${result.text.replaceAll('\n', ' ').trim()}');
+          if (eval.decision != ParseDecision.success) {
+            _logToConsole('⚠️ [${promptItem.id}] Failure (${eval.category.name}): ${result.text.replaceAll('\n', ' ').trim()}');
           }
         }
       }
@@ -348,11 +346,11 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 4. Metric Counters Grid (Clean, F1, F2, F4)
+            // 4. Metric Counters Grid (Clean, F1, F2, F3, F4)
             _buildTaxonomyMetrics(theme),
             const SizedBox(height: 16),
 
-            // 5. Latency & GC Gauge
+            // 5. Latency & Execution Gauge
             _buildTelemetryGauge(theme),
             const SizedBox(height: 16),
 
@@ -462,18 +460,29 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
   }
 
   Widget _buildTaxonomyMetrics(ThemeData theme) {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 8,
-      mainAxisSpacing: 8,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 2.2,
+    return Column(
       children: [
-        _metricTile('Clean Success', '$_successCount', Colors.green, Icons.check_circle),
-        _metricTile('F1 (Format Violation)', '$_f1Count', Colors.orange, Icons.format_paint),
-        _metricTile('F2 (Structural Error)', '$_f2Count', Colors.amber, Icons.schema),
-        _metricTile('F4 (KV/Session Degradation)', '$_f4Count', Colors.redAccent, Icons.history_toggle_off),
+        Row(
+          children: [
+            Expanded(child: _metricTile('Clean Success', '$_successCount', Colors.green, Icons.check_circle)),
+            const SizedBox(width: 8),
+            Expanded(child: _metricTile('F1 (Format Violation)', '$_f1Count', Colors.orange, Icons.format_paint)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(child: _metricTile('F2 (Structural Error)', '$_f2Count', Colors.amber, Icons.schema)),
+            const SizedBox(width: 8),
+            Expanded(child: _metricTile('F3 (Context Degradation)', '$_f3Count', Colors.redAccent, Icons.history_toggle_off)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(child: _metricTile('F4 (Latency Exceeded)', '$_f4Count', Colors.deepPurpleAccent, Icons.timer_off)),
+          ],
+        ),
       ],
     );
   }
@@ -485,14 +494,14 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         child: Row(
           children: [
-            Icon(icon, color: color, size: 28),
+            Icon(icon, color: color, size: 24),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(count, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+                  Text(count, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
                   Text(title, style: const TextStyle(fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis),
                 ],
               ),
@@ -513,19 +522,19 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
             Column(
               children: [
                 const Text('Last Latency', style: TextStyle(fontSize: 12)),
-                Text('${_lastLatencyMs.toStringAsFixed(1)} ms', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('${_lastLatencyMs.toStringAsFixed(1)} ms', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
             Column(
               children: [
-                const Text('GC Pause Estimate', style: TextStyle(fontSize: 12)),
-                Text('$_lastGcPauseUs µs', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Execution Mode', style: TextStyle(fontSize: 12)),
+                Text(_executionMode.toUpperCase(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _executionMode == 'hardware' ? Colors.green : Colors.amber)),
               ],
             ),
             Column(
               children: [
                 const Text('CSV Exported', style: TextStyle(fontSize: 12)),
-                Text(_exportedCsvPath != null ? 'Yes' : 'Pending', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _exportedCsvPath != null ? Colors.green : Colors.grey)),
+                Text(_exportedCsvPath != null ? 'Yes' : 'Pending', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _exportedCsvPath != null ? Colors.green : Colors.grey)),
               ],
             ),
           ],
@@ -544,7 +553,7 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Live Execution Feed', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Live Execution Feed', style: fontWeightBold),
                 Text('${_consoleLogs.length} events', style: theme.textTheme.bodySmall),
               ],
             ),
@@ -577,3 +586,5 @@ class _BenchmarkDashboardScreenState extends State<BenchmarkDashboardScreen> {
     );
   }
 }
+
+const TextStyle fontWeightBold = TextStyle(fontWeight: FontWeight.bold);

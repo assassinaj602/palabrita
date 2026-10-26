@@ -1,6 +1,7 @@
 library;
 
 export 'benchmark/benchmark_runner.dart';
+export 'benchmark/failure_classifier.dart';
 export 'benchmark/inference_logger.dart';
 export 'inference/inference_engine.dart';
 export 'inference/litert_lm_bindings.dart';

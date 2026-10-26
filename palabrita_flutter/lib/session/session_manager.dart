@@ -16,6 +16,7 @@ class SessionConfig {
 class SessionManager {
   final InferenceLogger logger;
   final SessionConfig config;
+  final Future<void> Function()? onSessionReset;
 
   String _currentSessionId = '';
   int _turnCount = 0;
@@ -28,6 +29,7 @@ class SessionManager {
   SessionManager({
     required this.logger,
     this.config = const SessionConfig(),
+    this.onSessionReset,
   });
 
   String get currentSessionId => _currentSessionId;
@@ -37,7 +39,10 @@ class SessionManager {
   String? get lastRotationReason => _lastRotationReason;
 
   /// Starts a new inference session.
-  Future<String> startSession({String? customSessionId, String reason = 'Session initialized'}) async {
+  Future<String> startSession({
+    String? customSessionId,
+    String reason = 'Session initialized',
+  }) async {
     if (_isActive) {
       await endSession(reason: 'Rotating into new session');
     }
@@ -50,6 +55,8 @@ class SessionManager {
     _totalFailures = 0;
     _isActive = true;
     _lastRotationReason = null;
+
+    await onSessionReset?.call();
 
     await logger.logSessionEvent(
       sessionId: _currentSessionId,
@@ -89,12 +96,12 @@ class SessionManager {
       return false; // rotated
     }
 
-    // Check if session reached consecutive failure threshold (F4 / KV degradation)
+    // Check if session reached consecutive failure threshold (F3 / context degradation)
     if (_consecutiveFailures >= config.maxConsecutiveFailures) {
       await rotateSession(
         event: SessionEvent.ROTATION_BY_FAILURE,
         reason: failureReason ??
-            'Exceeded max consecutive failures (${config.maxConsecutiveFailures})',
+            'Exceeded max consecutive failures (${config.maxConsecutiveFailures}): F3 context degradation',
       );
       return false; // rotated
     }
@@ -127,6 +134,8 @@ class SessionManager {
   }) async {
     if (!_isActive) return;
 
+    await onSessionReset?.call();
+
     if (!skipEventLog) {
       await logger.logSessionEvent(
         sessionId: _currentSessionId,
@@ -149,4 +158,3 @@ class SessionManager {
     );
   }
 }
-

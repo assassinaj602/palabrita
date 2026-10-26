@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
 import 'dart:convert';
-import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:csv/csv.dart';
@@ -23,11 +22,18 @@ enum ParseDecision {
   }
 }
 
-/// Failure category taxonomy from the "Less Is More" paper.
+/// Failure category taxonomy from the "Less Is More" paper:
+/// - F1: Format Violation (model emits unstructured text, conversational greeting, or fails delimiter schema)
+/// - F2: Structural Error (model attempts delimiters but violates constraints like token leakage or wrong clue count)
+/// - F3: Context Quality Degradation (hallucination, repetition loop, context/instruction drift over turns)
+/// - F4: Latency Incompatibility (inference latency exceeds real-time interactive budget)
+/// - F5: Resource Exhaustion (OOM, memory exhaustion, process kill)
 enum FailureCategory {
   F1, // Format violation
   F2, // Structural error
-  F4, // Session / KV cache degradation
+  F3, // Context quality degradation
+  F4, // Latency incompatibility
+  F5, // Resource exhaustion
   none;
 
   String toJson() => name;
@@ -67,7 +73,7 @@ class InferenceLogEntry {
   final ParseDecision parseDecision;
   final FailureCategory failureCategory;
   final int latencyMs;
-  final int gcPauseEstimateUs;
+  final String executionMode; // "hardware" or "mock"
   final String deviceInfo;
   final Map<String, dynamic>? metadata;
 
@@ -80,7 +86,7 @@ class InferenceLogEntry {
     required this.parseDecision,
     required this.failureCategory,
     required this.latencyMs,
-    required this.gcPauseEstimateUs,
+    this.executionMode = 'hardware',
     required this.deviceInfo,
     this.metadata,
   }) : timestamp = timestamp ?? DateTime.now().toUtc();
@@ -94,7 +100,7 @@ class InferenceLogEntry {
         'parse_decision': parseDecision.toJson(),
         'failure_category': failureCategory.toJson(),
         'latency_ms': latencyMs,
-        'gc_pause_estimate_us': gcPauseEstimateUs,
+        'execution_mode': executionMode,
         'device_info': deviceInfo,
         ...?metadata,
       };
@@ -110,7 +116,7 @@ class InferenceLogEntry {
       failureCategory:
           FailureCategory.fromJson(json['failure_category'] as String),
       latencyMs: json['latency_ms'] as int? ?? 0,
-      gcPauseEstimateUs: json['gc_pause_estimate_us'] as int? ?? 0,
+      executionMode: json['execution_mode'] as String? ?? 'hardware',
       deviceInfo: json['device_info'] as String? ?? '',
     );
   }
@@ -194,7 +200,7 @@ class InferenceLogger {
     'parse_decision',
     'failure_category',
     'latency_ms',
-    'gc_pause_estimate_us',
+    'execution_mode',
     'device_info',
   ];
 
@@ -216,17 +222,6 @@ class InferenceLogger {
 
   static String _defaultDeviceInfo() {
     return '${Platform.operatingSystem} ${Platform.operatingSystemVersion} (Dart ${Platform.version.split(' ').first})';
-  }
-
-  /// Estimates GC pause in microseconds using Dart's Timeline API and a quick allocation probe.
-  static int estimateGcPauseUs() {
-    final stopwatch = Stopwatch()..start();
-    developer.Timeline.timeSync('InferenceGCProbe', () {
-      final probe = List<int?>.filled(10000, 0);
-      probe[0] = null;
-    });
-    stopwatch.stop();
-    return stopwatch.elapsedMicroseconds;
   }
 
   /// Resolves the NDJSON log file. Defaults to `getApplicationDocumentsDirectory()/inference_log.ndjson`.
@@ -268,10 +263,9 @@ class InferenceLogger {
     required ParseDecision parseDecision,
     required FailureCategory failureCategory,
     required int latencyMs,
-    int? gcPauseEstimateUs,
+    String executionMode = 'hardware',
     Map<String, dynamic>? metadata,
   }) async {
-    final gcEstimate = gcPauseEstimateUs ?? estimateGcPauseUs();
     final entry = InferenceLogEntry(
       sessionId: sessionId,
       turnNumber: turnNumber,
@@ -280,7 +274,7 @@ class InferenceLogger {
       parseDecision: parseDecision,
       failureCategory: failureCategory,
       latencyMs: latencyMs,
-      gcPauseEstimateUs: gcEstimate,
+      executionMode: executionMode,
       deviceInfo: deviceInfo,
       metadata: metadata,
     );
@@ -377,7 +371,7 @@ class InferenceLogger {
             json['parse_decision'] ?? '',
             json['failure_category'] ?? '',
             json['latency_ms'] ?? '',
-            json['gc_pause_estimate_us'] ?? '',
+            json['execution_mode'] ?? 'hardware',
             json['device_info'] ?? '',
           ]);
         }
@@ -391,4 +385,3 @@ class InferenceLogger {
     return csvFile;
   }
 }
-

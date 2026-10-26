@@ -19,6 +19,7 @@ void main() {
 
       await engine.initialize(modelPath: '/dummy/model.bin', useGpu: false);
       expect(engine.isReady, isTrue);
+      expect(engine.executionMode, equals('mock'));
 
       final result = await engine.generateSingleTurn(
         systemPrompt: 'You are a test assistant',
@@ -27,7 +28,6 @@ void main() {
 
       expect(result.text, contains('hints:'));
       expect(result.latencyMs, greaterThanOrEqualTo(0));
-      expect(result.gcPauseEstimateUs, greaterThanOrEqualTo(0));
 
       expect(callbackResponse, equals(result.text));
       expect(callbackLatency, equals(result.latencyMs));
@@ -62,4 +62,3 @@ void main() {
     });
   });
 }
-

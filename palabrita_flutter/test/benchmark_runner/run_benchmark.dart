@@ -15,8 +15,8 @@ void main() {
       logFile: logFile,
     );
 
-    // Initialize inference engine (opens native liblitert_lm.so if available, otherwise mock)
-    final bindings = LiteRtLmBindings.open();
+    // Initialize inference engine with mock bindings for headless testing
+    final bindings = LiteRtLmBindings.mock();
     final engine = InferenceEngine(bindings: bindings);
 
     await engine.initialize(modelPath: '/dummy/path/qwen3_0_6b.bin');
@@ -27,7 +27,6 @@ void main() {
     );
 
     // Run benchmark (loads assets/test_prompts.json)
-    // Runs 2 passes in test mode for rapid validation, configurable to 5+ for full benchmark
     const promptsFile = 'assets/test_prompts.json';
     final summary = await runner.run(
       promptsPath: promptsFile,
@@ -37,7 +36,6 @@ void main() {
 
     expect(summary.totalRuns, equals(60)); // 30 prompts * 2 runs
     expect(summary.meanLatencyMs, greaterThanOrEqualTo(0));
-    expect(summary.meanGcPauseUs, greaterThanOrEqualTo(0));
 
     // Verify NDJSON log file
     expect(await logFile.exists(), isTrue);
@@ -55,4 +53,3 @@ void main() {
     engine.dispose();
   });
 }
-

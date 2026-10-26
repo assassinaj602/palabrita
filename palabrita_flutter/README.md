@@ -4,26 +4,31 @@ A research-grade Flutter/Dart port of the on-device AI inference layer from [Pal
 
 ---
 
-## Research Hypothesis
+## Research Scope & Taxonomy Alignment
 
-Following William Oliveira's paper *"Less Is More: On-Device Small Language Model Failure Modes on Android"*, this project tests the hypothesis that **F1 (format violations), F2 (structural errors), and F4 (session/KV degradation)** rates differ between Kotlin and Flutter implementations due to integration-layer runtime mechanisms rather than model-level behavior:
+Following William Oliveira's paper *"Less Is More: On-Device Small Language Model Failure Modes on Android"*, this project replicates the defensive parsing, session management, and inference telemetry pipeline to evaluate failure modes across runtimes under identical model weights and prompt inputs.
 
-1. **Generational GC vs. ART Heap Management (F4)**:
-   Dart runs an isolate-local generational scavenger and concurrent mark-sweep garbage collector. Under memory constraints, GC pause spikes during active inference influence KV-cache retention and session rotation boundaries differently than Android's ART, shifting where F4 degradation surfaces.
-2. **FFI vs. JNI Overhead**:
-   Dart FFI bypasses the Java Native Interface (JNI) marshaling layer with direct C-ABI function dispatch. While the underlying LiteRT-LM weights and generation parameters remain identical, call overhead profiles and memory pinning influence wall-clock latency distributions.
-3. **Regex Engine Grammar & Backtracking (F1/F2)**:
-   Dart's regular expression engine uses an RE2/ECMAScript-derived automaton without exponential backtracking, whereas Kotlin uses `java.util.regex`. On malformed model completions near the structural boundary, parsing and recovery decisions exhibit subtle divergence in fallback triggers.
+### Failure Classification Taxonomy
+* **`none`**: Clean success — output satisfies the canonical schema (`hints: h1 | h2 | h3`), yields $\ge 3$ distinct hints, and contains no lexical leakage of the target word.
+* **`F1`**: Format violation (e.g., missing delimiter prefix, unparseable conversational greeting, unstructured prose).
+* **`F2`**: Structural error (e.g., fewer than 3 hints, target word leaked inside a hint, invalid schema keys).
+* **`F3`**: Context quality degradation (e.g., token/phrase repetition loops, multi-turn instruction drift, context degradation).
+* **`F4`**: Latency incompatibility (inference latency exceeding the interactive real-time budget).
+* **`F5`**: Resource exhaustion (out-of-memory or process termination).
 
 ---
 
-## Project Architecture
+## Architecture & Integration
+
+* **Android Device Execution**: Flutter invokes a native Android bridge (`MainActivity.kt`) over `MethodChannel`, coordinating Google LiteRT-LM (`com.google.ai.edge.litertlm:litertlm-android:0.10.2`) with persistent native `Conversation` lifecycles across turns.
+* **Headless Host Execution**: Low-level C FFI bindings (`dart:ffi`) to `liblitert_lm.so` with `NativeFinalizer` attachments and deterministic mock implementations support headless unit and integration testing.
+* **Regex Engine**: Dart's `RegExp` implementation compiles via Irregexp using ECMAScript regular expression semantics with backtracking.
 
 ```
 palabrita_flutter/
 ├── lib/
-│   ├── benchmark/          # Benchmark runner, InferenceLogger (NDJSON/CSV)
-│   ├── inference/          # LiteRT-LM C FFI bindings & InferenceEngine
+│   ├── benchmark/          # Benchmark runner, failure classifier, InferenceLogger (NDJSON/CSV)
+│   ├── inference/          # LiteRT-LM bindings & InferenceEngine
 │   ├── parser/             # Defensive parser ported from Kotlin
 │   ├── prompt/             # PromptEngine & HintFallbackProvider
 │   └── session/            # Session lifecycle manager & rotation triggers
@@ -32,10 +37,12 @@ palabrita_flutter/
 └── test/
     ├── benchmark_runner/   # Headless benchmark test suite
     ├── defensive_parser_test.dart
+    ├── failure_classifier_test.dart
     ├── inference_engine_test.dart
     ├── inference_logger_test.dart
     ├── prompt_engine_test.dart
-    └── session_manager_test.dart
+    ├── session_manager_test.dart
+    └── widget_test.dart
 ```
 
 ---
@@ -60,15 +67,15 @@ flutter analyze
 
 ---
 
-## How to Read Output Logs
+## Telemetry & Logging
 
-Benchmark executions automatically capture every turn before and after parsing into two formats:
+Benchmark executions record every turn before and after parsing into structured formats:
 
 1. **NDJSON Log (`inference_log.ndjson`)**:
    Streaming newline-delimited JSON containing complete turn telemetry:
    ```json
    {
-     "timestamp": "2026-10-17T12:00:00.000Z",
+     "timestamp": "2026-10-18T12:00:00.000Z",
      "session_id": "palabrita_sess_1760700000000_1",
      "turn_number": 1,
      "raw_output": "hints: Hint 1 | Hint 2 | Hint 3",
@@ -76,43 +83,24 @@ Benchmark executions automatically capture every turn before and after parsing i
      "parse_decision": "success",
      "failure_category": "none",
      "latency_ms": 142,
-     "gc_pause_estimate_us": 120,
-     "device_info": "Google Pixel 7 - Android 14",
+     "execution_mode": "hardware",
+     "device_info": "TECNO CH7n - Android 12",
      "prompt_id": "p001",
      "word": "gatos",
      "language": "pt"
    }
    ```
 2. **CSV Export (`inference_log.csv`)**:
-   Standard spreadsheet export generated via `InferenceLogger.exportToCSV()` for statistical analysis and plotting.
-
-### Failure Classification Taxonomy
-* **`none`**: Successful extraction of valid, non-leaking hints ($\ge 3$).
-* **`F1`**: Format violation (e.g. missing `hints:` prefix, non-pipe layout, empty output, conversational preamble).
-* **`F2`**: Structural error (e.g. fewer than 3 hints, target word leaked inside hint, invalid JSON data types).
-* **`F4`**: Session degradation (repetition loops, hallucination collapse, KV cache degradation deep in session).
+   Exported via `InferenceLogger.exportToCSV()` for statistical aggregation.
 
 ---
 
-## Device Tested On
+## Experimental Protocol for Replication
 
-* **Device**: *(To be populated during Android benchmark run, e.g., Google Pixel 7 / Samsung Galaxy S23)*
-* **OS / Kernel**: Android 14 / Linux 5.15
-* **SoC / RAM**: 8GB RAM
-* **Model**: Qwen3 0.6B (LiteRT-LM, single-shot C API)
-
----
-
-## Baseline Comparison Table
-
-| Metric / Failure Category | Kotlin Baseline (Palabrita) | Flutter Port (Palabrita Flutter) | $\Delta$ (%) |
-|---|---|---|---|
-| **Clean Parse Success Rate** | *(Baseline from paper)* | *(To be populated from CSV)* | -- |
-| **F1 (Format Violation)** | *(Baseline from paper)* | *(To be populated from CSV)* | -- |
-| **F2 (Structural Error)** | *(Baseline from paper)* | *(To be populated from CSV)* | -- |
-| **F4 (Session Degradation)** | *(Baseline from paper)* | *(To be populated from CSV)* | -- |
-| **Mean Latency (ms)** | *(Baseline from paper)* | *(To be populated from CSV)* | -- |
-| **Mean GC Pause (µs)** | *(ART Baseline)* | *(Dart Scavenger)* | -- |
+To ensure scientific validity when comparing Dart/Flutter with Kotlin/Android:
+1. Run both implementations on the **exact same physical Android device**.
+2. Deploy identical model weights (`Qwen3-0.6B.litertlm`) and identical sampler parameters ($T=0.8, \text{top-}k=40, \text{top-}p=0.95$).
+3. Use matched prompt sets, identical persistent conversation lifecycles, and identical evaluation criteria.
 
 ---
 

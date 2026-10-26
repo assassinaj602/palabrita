@@ -33,7 +33,7 @@ void main() {
       parseDecision: ParseDecision.success,
       failureCategory: FailureCategory.none,
       latencyMs: 142,
-      gcPauseEstimateUs: 15,
+      executionMode: 'mock',
     );
 
     expect(await logFile.exists(), isTrue);
@@ -48,7 +48,7 @@ void main() {
     expect(json['parse_decision'], equals('success'));
     expect(json['failure_category'], equals('none'));
     expect(json['latency_ms'], equals(142));
-    expect(json['gc_pause_estimate_us'], equals(15));
+    expect(json['execution_mode'], equals('mock'));
     expect(json['device_info'], equals('TestDevice Android 14'));
     expect(json['timestamp'], isNotEmpty);
   });
@@ -113,7 +113,7 @@ void main() {
       parseDecision: ParseDecision.success,
       failureCategory: FailureCategory.none,
       latencyMs: 50,
-      gcPauseEstimateUs: 10,
+      executionMode: 'mock',
     );
 
     await logger.logInference(
@@ -124,7 +124,7 @@ void main() {
       parseDecision: ParseDecision.fallback,
       failureCategory: FailureCategory.F2,
       latencyMs: 80,
-      gcPauseEstimateUs: 20,
+      executionMode: 'mock',
     );
 
     final csvFile = File('${tempDir.path}/test_export.csv');
@@ -140,16 +140,11 @@ void main() {
     expect(csvLines[1], contains('raw1'));
     expect(csvLines[1], contains('success'));
     expect(csvLines[1], contains('none'));
+    expect(csvLines[1], contains('mock'));
     // Line 3: Turn 2
     expect(csvLines[2], contains('sess-csv'));
     expect(csvLines[2], contains('raw2'));
     expect(csvLines[2], contains('fallback'));
     expect(csvLines[2], contains('F2'));
   });
-
-  test('estimateGcPauseUs runs and returns a non-negative duration', () {
-    final pauseUs = InferenceLogger.estimateGcPauseUs();
-    expect(pauseUs, greaterThanOrEqualTo(0));
-  });
 }
-

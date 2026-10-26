@@ -299,6 +299,15 @@ Write a reply from Assad. Requirements:
 - [x] Phase 4.3 completed (Deployed Qwen3-0.6B.litertlm and recorded 96 physical hardware turns to CSV and NDJSON)
 - [x] Phase 4.4 completed (Paper methods and results sections drafted in docs/paper/)
 - [x] PR #4 synced on upstream repository with all commits and on-device datasets
+- [x] William's code review addressed:
+  - Fixed Spotless formatting check on MainActivity.kt (2-space ktfmt google-style)
+  - Aligned taxonomy strictly to original paper (F1 Format, F2 Structural, F3 Context Degradation, F4 Latency, F5 Resource)
+  - Fixed repetition loop check and unified failure classifier across headless runner and dashboard
+  - Implemented persistent multi-turn native Conversation management (startSession, sendMessage, resetSession)
+  - Added explicit execution_mode ("hardware" | "mock") and eliminated silent mock fallbacks
+  - Removed GC probe pause claims from telemetry and paper
+  - Corrected architecture (MethodChannel) and RegExp (Irregexp/ECMAScript with backtracking) descriptions
+  - Removed unverified baseline comparisons and clarified requirements for matched side-by-side control run
 
 ---
 
